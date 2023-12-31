@@ -4,11 +4,13 @@ import { MongoClient } from 'mongodb';
 import path from 'path';
 import history from 'connect-history-api-fallback';
 
+const cors = require('cors');
 const app = express();
 app.use(bodyParser.json());
 app.use('/images', express.static(path.join(__dirname, '../assets')));
 app.use(express.static(path.resolve(__dirname, '../dist'), { maxAge: '1y', etag: false }));
 app.use(history());
+app.use(cors({ origin: 'https://e-commercebymeena.onrender.com'}))
 
 app.get('/api/products', async (req, res) => {
   const client = await MongoClient.connect(
@@ -18,7 +20,7 @@ app.get('/api/products', async (req, res) => {
     : 'mongodb://localhost:27017',
     { useNewUrlParser: true, useUnifiedTopology: true },
   );
-  const db = client.db(process.env.MONGO_DBNAME || 'test');
+  const db = client.db(process.env.MONGO_DBNAME || 'vue-db');
   const products = await db.collection('products').find({}).toArray();
   res.status(200).json(products);
   client.close();
